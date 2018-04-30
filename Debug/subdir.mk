@@ -4,13 +4,16 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
-../Image.cpp 
+../Image.cpp \
+../driver.cpp 
 
 OBJS += \
-./Image.o 
+./Image.o \
+./driver.o 
 
 CPP_DEPS += \
-./Image.d 
+./Image.d \
+./driver.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

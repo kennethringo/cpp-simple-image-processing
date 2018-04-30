@@ -32,11 +32,12 @@ int main (int argc, char** argv){
 			firstFileName = string(argv[2]);
 			secondFileName = string(argv[3]);
 			outputFileName = string (argv[4]);
-			if (i1->loadImage(firstFileName) && i2->loadImage(secondFileName) ){
-
+			if (i1.loadImage(firstFileName) && i2.loadImage(secondFileName) ){
+//				cout << "1lhs size: " << i1.sizeOfImage <<endl;
+//				cout << "1rhs size: " << i2.sizeOfImage <<endl;
 				cout << "adding values in " << firstFileName << ", to values in " << secondFileName << "\n";
-				(*i1)+(*i2); //must dereference pointers to get to underlying objects
-				i1->saveImage(outputFileName);
+				(i1)+(i2); //must dereference pointers to get to underlying objects
+				i1.saveImage(outputFileName);
 
 				cout << "saved to output: "<< outputFileName << "\n";
 			}else{
@@ -48,10 +49,10 @@ int main (int argc, char** argv){
 			firstFileName = string(argv[2]);
 			secondFileName = string(argv[3]);
 			outputFileName = string (argv[4]);
-			if (i1->loadImage(firstFileName) && i2->loadImage(secondFileName) ){
+			if (i1.loadImage(firstFileName) && i2.loadImage(secondFileName) ){
 				cout << "subtracting values in " << firstFileName << ", by values in " << secondFileName << "\n";
-				(*i1)-(*i2);
-				i1->saveImage(outputFileName);
+//				(*i1)-(*i2);
+				i1.saveImage(outputFileName);
 				cout << "saved to output: "<< outputFileName << "\n";
 
 			}

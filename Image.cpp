@@ -8,16 +8,20 @@
 #include <iostream>
 #include <fstream>
 
+
+
 using namespace shmken002;
 using namespace std;
+using it = Image::iterator;
 namespace shmken002
 {
-	Image::Image(int w,int h): width(w), height(h), nRows(0) , nCols(0), sizeOfImage(0), data(new unsigned char[w*h]){}
+	//constructor
+	Image::Image(int w,int h): width(w), height(h), sizeOfImage(0), data(new unsigned char[w*h]){}
 
 	Image::~Image(){
 		width = 0;
 		height = 0;
-		;
+
 	}
 	int Image::getWidth() const{
 		return width;
@@ -34,11 +38,16 @@ namespace shmken002
 	}
 	void Image::reset(int w, int h) {
 		width = w; height = h;
+//		sizeOfImage = w*h;
 		data = unique_ptr <unsigned char[]>(new unsigned char[sizeOfImage]);
 	}
 
 	bool Image::loadImage(string imageName){
-		char * memblock;
+			char * memblock;
+			int nRows = 0;
+			int nCols = 0;
+			string numberOfColumns= "";
+			string numberOfRows= "";
 			ifstream input(imageName+".pgm",ios::in|ios::binary|ios::ate); //possibly open at the back to be able to set end of iterator
 
 			if (!(input.is_open())){
@@ -57,8 +66,8 @@ namespace shmken002
 				else if (line != "255"){	//for line containing nRows, nCols
 
 					std::size_t pos = line.find(" ");
-					string numberOfColumns= line.substr (pos);
-					string numberOfRows= line.substr (0,pos);
+					numberOfColumns= line.substr (pos);
+					numberOfRows= line.substr (0,pos);
 					nCols = stoi(numberOfColumns);
 					nRows = stoi(numberOfRows);
 
@@ -70,14 +79,16 @@ namespace shmken002
 
 			getline(input >> std::ws,line);
 
-			sizeOfImage = nCols * nRows; 		// no header only rows and cols
+			this->sizeOfImage = nCols * nRows; 		// no header only rows and cols
 			memblock = new char [sizeOfImage];
-			input.read (memblock, sizeOfImage);
-			// cout << memblock[0];
 
+			input.read (memblock, sizeOfImage);
 			width = nCols;
 			height = nRows;
 			reset(nCols, nRows);
+			// cout << memblock[0];
+
+
 			// data = unique_ptr <unsigned char[]>(new unsigned char[sizeOfImage]);
 			// data = make_unique<unsigned char[]>(sizeOfImage);
 			for (int i = 0; i<sizeOfImage; i++){
@@ -108,5 +119,64 @@ namespace shmken002
 					outputFile << this->data[i];
 			}
 			outputFile.close();
-		}
+	}
+
+	//iterator functions//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	it::iterator(unsigned char *p): ptr(p){}
+
+	it::~iterator(){
+		ptr = nullptr;
+	}
+
+
+	unsigned char& it::operator*(void){ //dereferencing
+		return *ptr;
+	}
+	it& it::operator++(void){ //prefix increment
+		ptr++;
+		return *this;
+	}
+	it& it::operator--(void){ //prefix decrement
+		ptr--;
+		return *this;
+	}
+
+	bool it::operator==(const iterator & rhs){	//check if left ptr = right ptr
+
+		return ptr == rhs.ptr;
+	}
+	bool it::operator!=(const iterator & rhs){
+		return ptr != rhs.ptr;
+	}
+
+	/*	Image functions												*/
+	it Image::begin(void){
+		return iterator(data.get());
+	}
+	it Image::end(void){
+		return iterator(data.get()+sizeOfImage);
+	}
+
+	Image & Image::operator+(Image & rhs){
+//		cout << "lhs size: " << sizeOfImage <<endl;
+//		cout << "rhs size: " << rhs.sizeOfImage <<endl;
+			if (this->sizeOfImage == rhs.sizeOfImage){
+				it beg = this->begin(), end = this->end();
+				it inStart = rhs.begin(), inEnd = rhs.end();
+				while ( beg != end) {
+//					cout << "not at end";
+					*beg = *inStart + *beg;
+
+					if(*beg > 255 ){	//clamping data between range 0 and 255
+						*beg = 255;
+					}
+					else if (*beg < 0 ){
+						*beg = 0;
+					}
+
+					++beg; ++inStart;
+				}
+			}
+			return *this;
+	}
 }
